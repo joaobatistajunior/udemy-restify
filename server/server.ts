@@ -12,13 +12,13 @@ export class Server {
         return this.initializeDb().then(()=>{
             return this.initRoutes(routers).then(() => this);
         });
-        
     }
     
     private initializeDb(): Promise<any> {
         (<any>mongoose).Promise = global.Promise;
         return mongoose.connect(environment.db.url,{
-            useNewUrlParser: true
+            useNewUrlParser: true,
+            useCreateIndex: true
         });
     }
 
