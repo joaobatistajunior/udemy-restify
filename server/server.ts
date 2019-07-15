@@ -1,22 +1,21 @@
-import { environment } from './../common/environments';
+import * as mongoose from 'mongoose';
 import * as restify from 'restify';
 import { Router } from '../common/router';
-import * as mongoose from 'mongoose';
-import { resolve } from 'path';
+import { environment } from './../common/environments';
 
 export class Server {
 
     application: restify.Server;
 
     bootstrap(routers: Router[] = []): Promise<Server> {
-        return this.initializeDb().then(()=>{
+        return this.initializeDb().then(() => {
             return this.initRoutes(routers).then(() => this);
         });
     }
-    
+
     private initializeDb(): Promise<any> {
         (<any>mongoose).Promise = global.Promise;
-        return mongoose.connect(environment.db.url,{
+        return mongoose.connect(environment.db.url, {
             useNewUrlParser: true,
             useCreateIndex: true
         });
@@ -31,6 +30,7 @@ export class Server {
                 });
 
                 this.application.use(restify.plugins.queryParser());
+                this.application.use(restify.plugins.bodyParser());
 
                 //routes
                 for (let router of routers) {
