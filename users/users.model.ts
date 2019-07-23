@@ -1,5 +1,7 @@
+import { environment } from './../common/environments';
 import * as mongoose from 'mongoose';
 import { validateCPF } from '../common/validators';
+import * as bcrypt from 'bcrypt';
 
 export interface User extends mongoose.Document {
     name: string,
@@ -37,6 +39,18 @@ const userSchema = new mongoose.Schema({
             validator: validateCPF,
             msg: '{PATH}: Invalid CPF ({VALUE})'
         }
+    }
+});
+
+userSchema.pre('save', function (next) {
+    const user: User = <User>this;
+    if (!user.isModified('password')) {
+        next();
+    } else {
+        bcrypt.hash(user.password, environment.security.saltRounds).then(hash => {
+            user.password = hash;
+            next();
+        }).catch(next);
     }
 });
 
