@@ -2,8 +2,8 @@ import * as mongoose from 'mongoose';
 import * as restify from 'restify';
 import { Router } from '../common/router';
 import { environment } from './../common/environments';
-import { mergePatchBodyParser } from './merge-patch.parser';
 import { handleError } from './error.handler';
+import { mergePatchBodyParser } from './merge-patch.parser';
 
 export class Server {
 
@@ -13,6 +13,10 @@ export class Server {
         return this.initializeDb().then(() => {
             return this.initRoutes(routers).then(() => this);
         });
+    }
+
+    shutdown() {
+        return mongoose.disconnect().then(() => this.application.close());
     }
 
     private initializeDb(): Promise<any> {
