@@ -25,7 +25,7 @@ afterAll(() => {
 });
 
 test('get /users', () => {
-    request(address)
+    return request(address)
         .get('/users')
         .then(response => {
             expect(response.status).toBe(200);
@@ -34,7 +34,7 @@ test('get /users', () => {
 });
 
 test('post /users', () => {
-    request(address)
+    return request(address)
         .post('/users')
         .send({
             name: 'usuario1',
@@ -50,4 +50,35 @@ test('post /users', () => {
             expect(response.body.cpf).toBe('918.983.606-50');
             expect(response.body.passowrd).toBeUndefined();
         }).catch(fail);
+});
+
+test('get /users/aaaa - not found', () => {
+    return request(address)
+        .get('/users/aaaa')
+        .then(response => {
+            expect(response.status).toBe(404);
+        }).catch(fail);
+});
+
+test('patch /users/:id', () => {
+    return request(address)
+        .post('/users')
+        .send({
+            name: 'usuario2',
+            email: 'usuario2@email.com',
+            password: '123456'
+        })
+        .then(response => request(address)
+            .patch(`/users/${response.body._id}`)
+            .send({
+                name: 'usuario2 - patch'
+            }))
+        .then(response => {
+            expect(response.status).toBe(200);
+            expect(response.body._id).toBeDefined();
+            expect(response.body.name).toBe('usuario2 - patch');
+            expect(response.body.email).toBe('usuario2@email.com');
+            expect(response.body.passowrd).toBeUndefined();
+        })
+        .catch(fail);
 });
