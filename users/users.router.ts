@@ -3,6 +3,7 @@ import { authenticate } from './../security/auth.handler';
 import * as restify from 'restify';
 import { ModelRouter } from '../common/model-router';
 import { User } from './users.model';
+import { ForbiddenError } from 'restify-errors';
 
 class UsersRouter extends ModelRouter<User> {
 
@@ -41,11 +42,23 @@ class UsersRouter extends ModelRouter<User> {
         ]))
         application.get(`${this.basePath}/:id`, [authorize('admin'), this.validateId, this.findById]);
         application.post(`${this.basePath}`, [authorize('admin'), this.save]);
-        application.put(`${this.basePath}/:id`, [authorize('admin'), this.validateId, this.replace]);
-        application.patch(`${this.basePath}/:id`, [authorize('admin'), this.validateId, this.update]);
+        application.put(`${this.basePath}/:id`, [authorize('admin','user'), this.validateChange, this.validateId, this.replace]);
+        application.patch(`${this.basePath}/:id`, [authorize('admin','user'), this.validateChange, this.validateId, this.update]);
         application.del(`${this.basePath}/:id`, [authorize('admin'), this.validateId, this.delete]);
 
         application.post(`${this.basePath}/authenticate`, authenticate);
+    }
+
+    private validateChange = (req, res, next) => {
+        if (!req.authenticated.profiles.some(profile => profile === 'admin')) {
+            if (req.authenticated._id.equals(req.params.id)) {
+                return next();
+            }
+            else {
+                next(new ForbiddenError('Access Denied.'));
+            }
+        }
+        next();
     }
 }
 
