@@ -3,7 +3,8 @@ import { fail } from 'assert';
 import 'jest';
 import * as request from 'supertest';
 
-let address = (<any>global).address;
+const address = (<any>global).address;
+const auth = (<any>global).auth;
 
 beforeAll(beforeAllTests);
 afterAll(afterAllTests);
@@ -11,6 +12,7 @@ afterAll(afterAllTests);
 test('get /users', async () => {
     await request(address)
         .get('/users')
+        .set('Authorization',auth)
         .then(response => {
             expect(response.status).toBe(200);
             expect(response.body.items).toBeInstanceOf(Array);
@@ -20,11 +22,13 @@ test('get /users', async () => {
 test('post /users', () => {
     return request(address)
         .post('/users')
+        .set('Authorization',auth)
         .send({
             name: 'usuario1',
             email: 'usuario1@email.com',
             password: '123456',
-            cpf: '918.983.606-50'
+            cpf: '918.983.606-50',
+            profiles: ['user']
         })
         .then(response => {
             expect(response.status).toBe(200);
@@ -39,6 +43,7 @@ test('post /users', () => {
 test('get /users/aaaa - not found', () => {
     return request(address)
         .get('/users/aaaa')
+        .set('Authorization',auth)
         .then(response => {
             expect(response.status).toBe(404);
         }).catch(fail);
@@ -47,13 +52,16 @@ test('get /users/aaaa - not found', () => {
 test('patch /users/:id', () => {
     return request(address)
         .post('/users')
+        .set('Authorization',auth)
         .send({
             name: 'usuario2',
             email: 'usuario2@email.com',
-            password: '123456'
+            password: '123456',
+            profiles: ['user']
         })
         .then(response => request(address)
             .patch(`/users/${response.body._id}`)
+            .set('Authorization',auth)
             .send({
                 name: 'usuario2 - patch'
             }))

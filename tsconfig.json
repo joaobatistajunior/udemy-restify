@@ -5,5 +5,5 @@
         "module": "commonjs",
         "skipLibCheck": true
     },
-    "exclude": ["**/*.test.js"]
+    "exclude": ["**/*.test.ts"]
 }
