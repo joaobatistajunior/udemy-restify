@@ -8,7 +8,7 @@ import { usersRouter } from "./users/users.router";
 
 let server: Server;
 
-const beforeAllTests = () => {
+export const beforeAllTests = () => {
     environment.db.url = process.env.DB_URL || 'mongodb://localhost/meat-api-test-db';
     environment.server.port = process.env.SERVER_PORT || 3001;
     server = new Server();
@@ -17,11 +17,11 @@ const beforeAllTests = () => {
         .then(() => Review.deleteMany({}).exec());
 }
 
-const afterAllTests = () => {
+export const afterAllTests = () => {
     return server.shutdown();
 }
 
-beforeAllTests()
-    .then(()=>jestCli.run())
-    .then(()=>afterAllTests())
-    .catch(console.error);
+// beforeAllTests()
+//     .then(()=>jestCli.run())
+//     .then(()=>afterAllTests())
+//     .catch(console.error);
