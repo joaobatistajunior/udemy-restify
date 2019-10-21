@@ -23,7 +23,8 @@ export class Server {
         (<any>mongoose).Promise = global.Promise;
         return mongoose.connect(environment.db.url, {
             useNewUrlParser: true,
-            useCreateIndex: true
+            useCreateIndex: true,
+            useFindAndModify: false
         });
     }
 
