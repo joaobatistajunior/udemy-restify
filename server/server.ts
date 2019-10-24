@@ -1,3 +1,4 @@
+import { logger } from './../common/logger';
 import { readFileSync } from 'fs';
 import * as mongoose from 'mongoose';
 import * as restify from 'restify';
@@ -36,14 +37,19 @@ export class Server {
 
                 const options: restify.ServerOptions = {
                     name: 'meat-api',
-                    version: '1.0.0'
+                    version: '1.0.0',
+                    log: logger
                 }
-                if(environment.security.enableHTTPS){
-                    options.certificate = readFileSync(environment.security.certificate),
-                    options.key = readFileSync(environment.security.key)
+                if (environment.security.enableHTTPS) {
+                    options.certificate = readFileSync(environment.security.certificate);
+                    options.key = readFileSync(environment.security.key);
                 }
 
                 this.application = restify.createServer(options);
+
+                this.application.pre(restify.plugins.requestLogger({
+                    log: logger
+                }));
 
                 this.application.use(restify.plugins.queryParser());
                 this.application.use(restify.plugins.bodyParser());
@@ -59,7 +65,20 @@ export class Server {
                     resolve(this.application);
                 });
 
-                this.application.on('restifyError', handleError)
+                this.application.on('restifyError', handleError);
+
+                //to custom auditLogger
+                //(req, resp, route, error)
+                /*this.application.on('after',restify.plugins.auditLogger({
+                    log: logger,
+                    event: 'after',
+                    server: this.application
+                }));
+
+                this.application.on('audit', data=>{
+
+                });*/
+
             } catch (error) {
                 reject(error);
             }
